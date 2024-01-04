@@ -1,11 +1,11 @@
 import express from 'express';
 import { IgApiClient } from 'instagram-private-api';
 import 'dotenv/config';
-import getEtsyDetails from '../utils/getEtsyDetails.js';
-import hashtags from '../data/hashtags.js';
-const app = express();
+import getEtsyDetails from './utils/getEtsyDetails.js';
+import hashtags from './data/hashtags.js';
+import cron from 'node-cron';
 
-const port = process.env.PORT || 8080;
+const app = express();
 
 const etsyDetails = await getEtsyDetails();
 
@@ -44,8 +44,14 @@ const postToInsta = async () => {
   }
 };
 
-postToInsta();
-
-app.listen(port, () => {
-  console.log(`Server listening on port: ${port}`);
+//pop below in cron job
+cron.schedule('0 1 16 * * *', () => {
+  postToInsta();
+  console.log('Scraping and a Posting');
 });
+
+// app.listen(port, () => {
+//   console.log(`Server listening on port: ${port}`);
+// });
+
+export default app;
