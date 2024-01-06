@@ -4,6 +4,7 @@ const getEtsyDetails = async () => {
   const browser = await puppeteer.launch({
     headless: 'new',
   });
+
   const page = await browser.newPage();
   await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
   page.waitForSelector('div');
