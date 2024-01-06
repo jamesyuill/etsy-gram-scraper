@@ -4,54 +4,68 @@ import 'dotenv/config';
 import getEtsyDetails from './utils/getEtsyDetails.js';
 import hashtags from './data/hashtags.js';
 import cron from 'node-cron';
+import cors from 'cors';
 
 const app = express();
 
-const etsyDetails = await getEtsyDetails();
+app.use(cors());
 
 const ig = new IgApiClient();
 
+const backUpDetails = {
+  content: 'Noise 4 - Unisex Tee\n\n£41.62\n\nAdd to Favourites',
+  imgSrc:
+    'https://i.etsystatic.com/49222000/r/il/ecf014/5640973654/il_340x270.5640973654_duoi.jpg',
+};
+
+const etsyDetails = (await getEtsyDetails()) || backUpDetails;
+console.log(etsyDetails);
+
 const postToInsta = async () => {
-  try {
-    ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
+  if (etsyDetails) {
+    try {
+      ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
 
-    await ig.simulate.preLoginFlow();
-    const user = await ig.account.login(
-      process.env.INSTAGRAM_USERNAME,
-      process.env.INSTAGRAM_PASSWORD
-    );
+      //Removed this line as it was throwing a login error
+      // await ig.simulate.preLoginFlow();
 
-    //Image resize and buffering
-    const imageURL = etsyDetails.imgSrc.replace('il_340x270', 'il_1588xN');
+      const user = await ig.account.login(
+        process.env.INSTAGRAM_USERNAME,
+        process.env.INSTAGRAM_PASSWORD
+      );
 
-    const response = await fetch(imageURL);
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+      //Image resize and buffering
+      const imageURL = etsyDetails.imgSrc.replace('il_340x270', 'il_1588xN');
 
-    //caption concatenation
-    const contentArray = etsyDetails.content.split('\n');
-    const clothingTitleArray = contentArray[0].split('-');
-    const caption = `Check out our new design!\nThis is the ${clothingTitleArray[0]}\nOnly ${contentArray[2]}\nBuy it now!\nLink in Bio\n\n\n\n******************\n${hashtags}`;
+      const response = await fetch(imageURL);
+      const blob = await response.blob();
+      const arrayBuffer = await blob.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-    const published = await ig.publish.photo({
-      file: buffer,
-      caption: caption,
-    });
-    console.log(published);
-  } catch (error) {
-    console.log(error);
+      //caption concatenation
+      const contentArray = etsyDetails.content.split('\n');
+      const clothingTitleArray = contentArray[0].split('-');
+      const caption = `Check out our new design!\nThis is the ${clothingTitleArray[0]}\nOnly ${contentArray[2]}\nBuy it now!\nLink in Bio\n\n\n\n******************\n${hashtags}`;
+
+      const published = await ig.publish.photo({
+        file: buffer,
+        caption: caption,
+      });
+      console.log(published);
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    throw new Error('Trouble fetching Etsy item details');
   }
 };
 
-//pop below in cron job
+// postToInsta();
+
+//Cron job for collecting Etsy Details and Posting to Instagram
 cron.schedule('0 1 16 * * *', () => {
   postToInsta();
   console.log('Scraping and a Posting');
 });
-
-// app.listen(port, () => {
-//   console.log(`Server listening on port: ${port}`);
-// });
 
 export default app;
