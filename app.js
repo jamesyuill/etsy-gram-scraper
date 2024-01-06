@@ -44,8 +44,8 @@ const postToInsta = async () => {
 
       //caption concatenation
       const contentArray = etsyDetails.content.split('\n');
-      const clothingTitleArray = contentArray[0].split('-');
-      const caption = `Check out our new design!\nThis is the ${clothingTitleArray[0]}\nOnly ${contentArray[2]}\nBuy it now!\nLink in Bio\n\n\n\n******************\n${hashtags}`;
+      const clothingTitle = contentArray[0];
+      const caption = `This is the ${clothingTitle}\n\nOnly ${contentArray[2]}\n\nBuy it now!\n\nLink in Bio\n\n\n\n******************\n\n${hashtags}`;
 
       const published = await ig.publish.photo({
         file: buffer,
@@ -63,9 +63,14 @@ const postToInsta = async () => {
 // postToInsta();
 
 //Cron job for collecting Etsy Details and Posting to Instagram
+cron.schedule('0 1 9 * * *', () => {
+  postToInsta();
+  console.log('Scraping and a Posting in the Morning');
+});
+
 cron.schedule('0 1 16 * * *', () => {
   postToInsta();
-  console.log('Scraping and a Posting');
+  console.log('Scraping and a Posting in the Morning');
 });
 
 export default app;
