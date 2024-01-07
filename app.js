@@ -51,7 +51,7 @@ const postToInsta = async () => {
         file: buffer,
         caption: caption,
       });
-      console.log(published);
+      console.log(published.status);
     } catch (error) {
       console.log(error);
     }

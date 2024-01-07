@@ -7,7 +7,7 @@ const getEtsyDetails = async () => {
 
   const page = await browser.newPage();
   await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
-  page.waitForSelector('div');
+  // page.waitForSelector('div');
   const data = await page.$$eval(
     '.js-merch-stash-check-listing',
     (elements) => {
@@ -18,9 +18,17 @@ const getEtsyDetails = async () => {
       });
     }
   );
+  const totalItems = await page.$$eval('#section-menu', (elements) => {
+    return elements.map((element) => {
+      const pattern = /\d/g;
+      const number = element.innerText.match(pattern);
+
+      return number;
+    });
+  });
 
   await browser.close();
-  let randomIndex = Math.floor(Math.random() * 9);
+  let randomIndex = Math.floor(Math.random() * totalItems[0] + 1);
   return data[randomIndex];
 };
 
