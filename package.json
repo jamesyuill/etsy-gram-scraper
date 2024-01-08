@@ -5,7 +5,7 @@
   "type": "module",
   "main": "listen.js",
   "scripts": {
-    "dev": "nodemon listen.js",
+    "dev": "nodemon listen.js --ignore data/lastPost.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node listen.js"
   },

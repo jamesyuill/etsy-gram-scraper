@@ -5,12 +5,15 @@ import getEtsyDetails from './utils/getEtsyDetails.js';
 import hashtags from './data/hashtags.js';
 import cron from 'node-cron';
 import cors from 'cors';
+import fs from 'fs';
 
 const app = express();
 
 app.use(cors());
 
 const ig = new IgApiClient();
+
+let lastPost;
 
 const backUpDetails = {
   content: 'Noise 4 - Unisex Tee\n\n£41.62\n\nAdd to Favourites',
@@ -19,7 +22,7 @@ const backUpDetails = {
 };
 
 const etsyDetails = (await getEtsyDetails()) || backUpDetails;
-console.log(etsyDetails);
+// console.log(etsyDetails);
 
 const postToInsta = async () => {
   if (etsyDetails) {
@@ -52,6 +55,12 @@ const postToInsta = async () => {
         caption: caption,
       });
       console.log(published.status);
+
+      if (published.status === 'ok') {
+        fs.writeFile('data/lastPost.json', JSON.stringify(etsyDetails), () => {
+          console.log('lastPost written to file');
+        });
+      }
     } catch (error) {
       console.log(error);
     }

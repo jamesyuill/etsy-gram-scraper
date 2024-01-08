@@ -1,13 +1,20 @@
 import puppeteer from 'puppeteer';
+import fs from 'fs';
 
 const getEtsyDetails = async () => {
+  let lastPost;
+  fs.readFile('data/lastPost.json', 'utf-8', (err, data) => {
+    lastPost = JSON.parse(data);
+    console.log('lastPost: ', lastPost);
+  });
+
   const browser = await puppeteer.launch({
     headless: 'new',
   });
 
   const page = await browser.newPage();
   await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
-  // page.waitForSelector('div');
+  await page.waitForSelector('div');
   const data = await page.$$eval(
     '.js-merch-stash-check-listing',
     (elements) => {
@@ -28,8 +35,16 @@ const getEtsyDetails = async () => {
   });
 
   await browser.close();
+
   let randomIndex = Math.floor(Math.random() * totalItems[0] + 1);
-  return data[randomIndex];
+
+  const item = data[randomIndex];
+
+  if (item.content === lastPost.content) {
+    getEtsyDetails();
+  }
+
+  return item;
 };
 
 export default getEtsyDetails;
