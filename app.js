@@ -5,6 +5,7 @@ import getEtsyDetails from './utils/getEtsyDetails.js';
 import hashtags from './data/hashtags.js';
 import cron from 'node-cron';
 import cors from 'cors';
+import fs from 'fs';
 
 const app = express();
 
@@ -12,16 +13,26 @@ app.use(cors());
 
 const ig = new IgApiClient();
 
-const backUpDetails = {
-  content: 'Noise 4 - Unisex Tee\n\n£41.62\n\nAdd to Favourites',
-  imgSrc:
-    'https://i.etsystatic.com/49222000/r/il/ecf014/5640973654/il_340x270.5640973654_duoi.jpg',
-};
+let lastPost;
 
-const etsyDetails = (await getEtsyDetails()) || backUpDetails;
-console.log(etsyDetails);
+// const backUpDetails = {
+//   content: 'Noise 4 - Unisex Tee\n\n£41.62\n\nAdd to Favourites',
+//   imgSrc:
+//     'https://i.etsystatic.com/49222000/r/il/ecf014/5640973654/il_340x270.5640973654_duoi.jpg',
+// };
+
+// const etsyDetails = (await getEtsyDetails()) || backUpDetails;
+// console.log(etsyDetails);
 
 const postToInsta = async () => {
+  let etsyDetails;
+  try {
+    etsyDetails = await getEtsyDetails();
+  } catch (error) {
+    console.log('Error getting Etsy Details', error);
+    return;
+  }
+
   if (etsyDetails) {
     try {
       ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
@@ -52,6 +63,12 @@ const postToInsta = async () => {
         caption: caption,
       });
       console.log(published.status);
+
+      if (published.status === 'ok') {
+        fs.writeFile('data/lastPost.json', JSON.stringify(etsyDetails), () => {
+          console.log('lastPost written to file');
+        });
+      }
     } catch (error) {
       console.log(error);
     }
