@@ -24,13 +24,17 @@ describe('getTotalItems', () => {
 });
 
 describe('getShopContents', () => {
-  test('should return an array of objects', async () => {
+  test('should return an array', async () => {
     const result = await getShopContents();
     expect(Array.isArray(result)).toBe(true);
   });
-  test('each item of the array should be an object with the content and imgSrc property', async () => {
+  test('each item of the array should be an object', async () => {
     const result = await getShopContents();
     expect(typeof result[0]).toBe('object');
+  });
+
+  test('each object should have content and imgSrc property', async () => {
+    const result = await getShopContents();
     expect(result[0]).toHaveProperty('content', expect.any(String));
     expect(result[0]).toHaveProperty('imgSrc', expect.any(String));
   });
