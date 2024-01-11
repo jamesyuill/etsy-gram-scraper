@@ -4,6 +4,7 @@ import getTotalItems from './getTotalItems';
 
 const getEtsyDetails = async () => {
   const lastPost = getLastPost();
+  const totalItems = await getTotalItems();
 
   const browser = await puppeteer.launch({
     headless: 'new',
@@ -22,7 +23,6 @@ const getEtsyDetails = async () => {
       });
     }
   );
-  // const totalItems = await getTotalItems()
 
   await browser.close();
 
