@@ -1,6 +1,6 @@
-import puppeteer from 'puppeteer';
 import getLastPost from './getLastPost';
 import getTotalItems from './getTotalItems';
+import getShopContents from './getShopContents';
 
 const getEtsyDetails = async () => {
   const lastPost = getLastPost();

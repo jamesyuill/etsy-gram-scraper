@@ -7,18 +7,18 @@ export default async function getShopContents() {
   try {
     const page = await browser.newPage();
     await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
-    //   await page.waitForSelector('div');
 
-    const data = await page.$$eval(
-      '.js-merch-stash-check-listing',
-      (elements) => {
-        return elements.map((element) => {
-          const content = element.innerText;
-          const imgSrc = element.querySelector('img').src;
-          return { content, imgSrc };
+    const data = await page.evaluate(() => {
+      const results = [];
+      const items = document.querySelectorAll('.js-merch-stash-check-listing');
+      items.forEach((item) => {
+        results.push({
+          content: item.innerText,
+          imgSrc: item.querySelector('img').src,
         });
-      }
-    );
+      });
+      return results;
+    });
     return data;
   } catch (error) {
     console.log(error);
