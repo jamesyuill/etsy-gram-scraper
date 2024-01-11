@@ -87,7 +87,7 @@ cron.schedule('0 1 9 * * *', () => {
 
 cron.schedule('0 1 16 * * *', () => {
   postToInsta();
-  console.log('Scraping and a Posting in the Morning');
+  console.log('Scraping and a Posting in the Afternoon');
 });
 
 export default app;
