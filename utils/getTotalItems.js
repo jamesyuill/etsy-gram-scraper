@@ -7,15 +7,14 @@ export default async function getTotalItems() {
   try {
     const page = await browser.newPage();
     await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
-    await page.waitForSelector('.section-dropdown', { visible: true });
 
+    await page.waitForSelector('.section-dropdown');
     const totalItems = await page.evaluate(() => {
       const element = document.querySelector('.section-dropdown');
       const pattern = /\d/g;
       return element ? element.innerText.match(pattern)[0] : null;
     });
 
-    console.log(+totalItems);
     return +totalItems;
   } catch (error) {
     console.log(error);
@@ -23,5 +22,3 @@ export default async function getTotalItems() {
     await browser.close();
   }
 }
-
-getTotalItems();
