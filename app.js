@@ -24,8 +24,50 @@ const selectItemToPost = async () => {
   return itemToPost;
 };
 
-const postToInsta = async () => {
+const postToInsta = async (etsyDetails) => {
+  try {
+    ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
+
+    //Removed this line as it was throwing a login error
+    // await ig.simulate.preLoginFlow();
+
+    const user = await ig.account.login(
+      process.env.INSTAGRAM_USERNAME,
+      process.env.INSTAGRAM_PASSWORD
+    );
+
+    //Image resize and buffering
+    const imageURL = etsyDetails.imgSrc.replace('il_340x270', 'il_1588xN');
+
+    const response = await fetch(imageURL);
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    //caption concatenation
+    const contentArray = etsyDetails.content.split('\n');
+    const clothingTitle = contentArray[0];
+    const caption = `This is the ${clothingTitle}\n\nOnly ${contentArray[2]}\n\nBuy it now!\n\nLink in Bio\n\n\n\n******************\n\n${hashtags}`;
+
+    const published = await ig.publish.photo({
+      file: buffer,
+      caption: caption,
+    });
+    console.log(published.status);
+
+    if (published.status === 'ok') {
+      fs.writeFile('data/lastPost.json', JSON.stringify(etsyDetails), () => {
+        console.log('lastPost written to file');
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const runCheckAndPost = async () => {
   let etsyDetails;
+
   try {
     etsyDetails = await selectItemToPost();
   } catch (error) {
@@ -34,60 +76,20 @@ const postToInsta = async () => {
   }
 
   if (etsyDetails) {
-    try {
-      ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
-
-      //Removed this line as it was throwing a login error
-      // await ig.simulate.preLoginFlow();
-
-      const user = await ig.account.login(
-        process.env.INSTAGRAM_USERNAME,
-        process.env.INSTAGRAM_PASSWORD
-      );
-
-      //Image resize and buffering
-      const imageURL = etsyDetails.imgSrc.replace('il_340x270', 'il_1588xN');
-
-      const response = await fetch(imageURL);
-      const blob = await response.blob();
-      const arrayBuffer = await blob.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      //caption concatenation
-      const contentArray = etsyDetails.content.split('\n');
-      const clothingTitle = contentArray[0];
-      const caption = `This is the ${clothingTitle}\n\nOnly ${contentArray[2]}\n\nBuy it now!\n\nLink in Bio\n\n\n\n******************\n\n${hashtags}`;
-
-      const published = await ig.publish.photo({
-        file: buffer,
-        caption: caption,
-      });
-      console.log(published.status);
-
-      if (published.status === 'ok') {
-        fs.writeFile('data/lastPost.json', JSON.stringify(etsyDetails), () => {
-          console.log('lastPost written to file');
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    postToInsta(etsyDetails);
+    console.log('Scraping and a Posting');
   } else {
-    throw new Error('Trouble fetching Etsy item details');
+    console.log('EtsyDetails were undefined');
   }
 };
 
-// postToInsta();
-
 //Cron job for collecting Etsy Details and Posting to Instagram
-cron.schedule('0 1 9 * * *', () => {
-  postToInsta();
-  console.log('Scraping and a Posting in the Morning');
+cron.schedule('0 1 9 * * *', async () => {
+  await runCheckAndPost();
 });
 
-cron.schedule('0 1 16 * * *', () => {
-  postToInsta();
-  console.log('Scraping and a Posting in the Afternoon');
+cron.schedule('0 1 16 * * *', async () => {
+  await runCheckAndPost();
 });
 
 export default app;
