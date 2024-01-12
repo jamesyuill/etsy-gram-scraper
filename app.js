@@ -9,6 +9,7 @@ import getLastPost from './utils/getLastPost.js';
 import getTotalItems from './utils/getTotalItems.js';
 import getShopContents from './utils/getShopContents.js';
 import selectRandomItem from './utils/selectRandomItem.js';
+import isItemSameAsLast from './utils/isItemSameAsLast.js';
 
 const app = express();
 
@@ -21,8 +22,18 @@ const selectItemToPost = async () => {
   const totalItems = await getTotalItems();
   const shopItemsArray = await getShopContents();
   const itemToPost = selectRandomItem(shopItemsArray, totalItems);
-  return itemToPost;
+
+  if (!isItemSameAsLast(lastPost, itemToPost)) {
+    return itemToPost;
+  } else {
+    selectItemToPost();
+  }
 };
+
+//Uncomment to test if it's actually retrieving and selecting an item
+
+// const item = await selectItemToPost();
+// console.log('retrieved and selecteed item: ', item);
 
 const postToInsta = async (etsyDetails) => {
   try {
@@ -55,6 +66,7 @@ const postToInsta = async (etsyDetails) => {
     });
     console.log(published.status);
 
+    //saving the item so that I can do a comparison check to avoid posting same pic twice in a row
     if (published.status === 'ok') {
       fs.writeFile('data/lastPost.json', JSON.stringify(etsyDetails), () => {
         console.log('lastPost written to file');
@@ -83,11 +95,12 @@ const runCheckAndPost = async () => {
   }
 };
 
-//Cron job for collecting Etsy Details and Posting to Instagram
+//Cron job for triggering actions in morning (9.01)
 cron.schedule('0 1 9 * * *', async () => {
   await runCheckAndPost();
 });
 
+//Cron job for triggering actions in morning (16.01)
 cron.schedule('0 1 16 * * *', async () => {
   await runCheckAndPost();
 });
