@@ -16,14 +16,14 @@ xdescribe('getLastPost', () => {
   });
 });
 
-xdescribe('getTotalItems', () => {
+describe('getTotalItems', () => {
   test('should return a number', async () => {
     const result = await getTotalItems();
     expect(typeof result).toBe('number');
   });
 });
 
-describe('getShopContents', () => {
+xdescribe('getShopContents', () => {
   test('should return an array', async () => {
     const result = await getShopContents();
     expect(Array.isArray(result)).toBe(true);

@@ -6,9 +6,10 @@ export default async function getTotalItems() {
   });
   try {
     const page = await browser.newPage();
-    await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
+    await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise', {
+      waitUntil: 'load',
+    });
 
-    await page.waitForSelector('.section-dropdown');
     const totalItems = await page.evaluate(() => {
       const element = document.querySelector('.section-dropdown');
       const pattern = /\d/g;
