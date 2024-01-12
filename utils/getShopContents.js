@@ -6,7 +6,9 @@ export default async function getShopContents() {
   });
   try {
     const page = await browser.newPage();
-    await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise');
+    await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise', {
+      waitUntil: 'load',
+    });
 
     const data = await page.evaluate(() => {
       const results = [];

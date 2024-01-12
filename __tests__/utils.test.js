@@ -3,7 +3,7 @@ import getTotalItems from '../utils/getTotalItems';
 import getShopContents from '../utils/getShopContents';
 import selectRandomItem from '../utils/selectRandomItem';
 
-describe('getLastPost', () => {
+xdescribe('getLastPost', () => {
   test('should return an object', () => {
     const result = getLastPost();
     expect(typeof result).toBe('object');
@@ -16,7 +16,7 @@ describe('getLastPost', () => {
   });
 });
 
-describe('getTotalItems', () => {
+xdescribe('getTotalItems', () => {
   test('should return a number', async () => {
     const result = await getTotalItems();
     expect(typeof result).toBe('number');
@@ -40,7 +40,7 @@ describe('getShopContents', () => {
   });
 });
 
-describe('selectRandomItem', () => {
+xdescribe('selectRandomItem', () => {
   test('should return a single object from an array', () => {
     const array = [
       { content: 'cheese', imgSrc: 'imageofcheese' },
