@@ -1,11 +1,14 @@
 import express from 'express';
+import fs from 'fs';
 import { IgApiClient } from 'instagram-private-api';
 import 'dotenv/config';
-import getEtsyDetails from './utils/getEtsyDetails.js';
 import hashtags from './data/hashtags.js';
 import cron from 'node-cron';
 import cors from 'cors';
-import fs from 'fs';
+import getLastPost from './utils/getLastPost.js';
+import getTotalItems from './utils/getTotalItems.js';
+import getShopContents from './utils/getShopContents.js';
+import selectRandomItem from './utils/selectRandomItem.js';
 
 const app = express();
 
@@ -13,21 +16,18 @@ app.use(cors());
 
 const ig = new IgApiClient();
 
-let lastPost;
-
-// const backUpDetails = {
-//   content: 'Noise 4 - Unisex Tee\n\n£41.62\n\nAdd to Favourites',
-//   imgSrc:
-//     'https://i.etsystatic.com/49222000/r/il/ecf014/5640973654/il_340x270.5640973654_duoi.jpg',
-// };
-
-// const etsyDetails = (await getEtsyDetails()) || backUpDetails;
-// console.log(etsyDetails);
+const selectItemToPost = async () => {
+  const lastPost = await getLastPost();
+  const totalItems = await getTotalItems();
+  const shopItemsArray = await getShopContents();
+  const itemToPost = selectRandomItem(shopItemsArray, totalItems);
+  return itemToPost;
+};
 
 const postToInsta = async () => {
   let etsyDetails;
   try {
-    etsyDetails = await getEtsyDetails();
+    etsyDetails = await selectItemToPost();
   } catch (error) {
     console.log('Error getting Etsy Details', error);
     return;
@@ -87,7 +87,7 @@ cron.schedule('0 1 9 * * *', () => {
 
 cron.schedule('0 1 16 * * *', () => {
   postToInsta();
-  console.log('Scraping and a Posting in the Morning');
+  console.log('Scraping and a Posting in the Afternoon');
 });
 
 export default app;
