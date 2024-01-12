@@ -77,7 +77,7 @@ const postToInsta = async () => {
   }
 };
 
-postToInsta();
+// postToInsta();
 
 //Cron job for collecting Etsy Details and Posting to Instagram
 cron.schedule('0 1 9 * * *', () => {
