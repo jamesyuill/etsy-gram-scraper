@@ -1,25 +1,28 @@
 import puppeteer from 'puppeteer';
-
+let attempts = 0;
 export default async function getTotalItems() {
+  let totalItems;
   const browser = await puppeteer.launch({
     headless: 'new',
   });
-  try {
-    const page = await browser.newPage();
-    await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise', {
-      waitUntil: 'load',
-    });
 
-    const totalItems = await page.evaluate(() => {
-      const element = document.querySelector('.section-dropdown');
-      const pattern = /\d/g;
-      return element ? element.innerText.match(pattern)[0] : null;
-    });
+  const page = await browser.newPage();
+  await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise', {
+    waitUntil: 'load',
+  });
 
-    return +totalItems;
-  } catch (error) {
-    console.log(error);
-  } finally {
-    await browser.close();
+  totalItems = await page.evaluate(() => {
+    const element = document.querySelector('.section-dropdown');
+    const pattern = /\d/g;
+    return element ? element.innerText.match(pattern)[0] : null;
+  });
+  await browser.close();
+
+  while (totalItems === null && attempts < 10) {
+    console.log(`totalItems is: `, totalItems);
+    totalItems = await getTotalItems();
+    attempts++;
   }
+  attempts = 0;
+  return +totalItems;
 }

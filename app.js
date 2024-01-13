@@ -33,7 +33,7 @@ const selectItemToPost = async () => {
 //Uncomment to test if it's actually retrieving and selecting an item
 
 // const item = await selectItemToPost();
-// console.log('retrieved and selecteed item: ', item);
+// console.log('retrieved and selected item: ', item);
 
 const postToInsta = async (etsyDetails) => {
   try {
