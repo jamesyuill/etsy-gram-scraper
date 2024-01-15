@@ -13,9 +13,10 @@ export default async function getTotalItems() {
 
   totalItems = await page.evaluate(() => {
     const element = document.querySelector('.section-dropdown');
-    const pattern = /\d/g;
-    return element ? element.innerText.match(pattern)[0] : null;
+    const pattern = /(\d+)/g;
+    return element ? +element.innerText.match(pattern)[0] : null;
   });
+
   await browser.close();
 
   while (totalItems === null && attempts < 10) {
@@ -24,5 +25,6 @@ export default async function getTotalItems() {
     attempts++;
   }
   attempts = 0;
-  return +totalItems;
+  console.log('totalItems is: ', totalItems);
+  return totalItems;
 }
