@@ -30,11 +30,6 @@ const selectItemToPost = async () => {
   }
 };
 
-//Uncomment to test if it's actually retrieving and selecting an item
-
-// const item = await selectItemToPost();
-// console.log('retrieved and selected item: ', item);
-
 const postToInsta = async (etsyDetails) => {
   try {
     ig.state.generateDevice(process.env.INSTAGRAM_USERNAME);
@@ -104,5 +99,13 @@ cron.schedule('0 1 9 * * *', async () => {
 cron.schedule('0 1 16 * * *', async () => {
   await runCheckAndPost();
 });
+
+//******* */ UNCOMMENT TO TEST THE SCRAPING ONLY ****************
+
+// const item = await selectItemToPost();
+// console.log('retrieved and selected item: ', item);
+
+//******* */ UNCOMMENT TO TEST THE SCRAPING AND POSTING ****************
+// await runCheckAndPost();
 
 export default app;
