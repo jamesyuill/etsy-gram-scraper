@@ -8,7 +8,7 @@ export default async function getShopContents() {
   });
 
   const page = await browser.newPage();
-  await page.goto('https://www.etsy.com/uk/shop/EverythingIsNoise', {
+  await page.goto(process.env.ETSY_URL, {
     waitUntil: 'load',
   });
 
